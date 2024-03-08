@@ -981,84 +981,46 @@ def display_images(
         display(resized_img)
         print("\n")
 
-def compare_texts(text1, text2):
-  """
-  This function compares two texts using different methods.
 
-  Args:
-      text1: The first text string.
-      text2: The second text string.
-
-  Returns:
-      A dictionary containing the results of the following comparisons:
-          * "character_level_accuracy": Percentage of characters that match exactly.
-          * "word_level_accuracy": Percentage of words that match exactly (case-insensitive).
-          * "cosine_similarity": Cosine similarity between word embeddings (using Gensim).
-  """
-  # Character level accuracy
-  character_matches = sum(c1 == c2 for c1, c2 in zip(text1, text2))
-  character_accuracy = character_matches / len(text1) * 100  # Percentage
-
-  # Word level accuracy (case-insensitive)
-  word_list1 = set(text1.lower().split())
-  word_list2 = set(text2.lower().split())
-  word_matches = len(word_list1.intersection(word_list2))
-  word_accuracy = word_matches / (len(word_list1) + len(word_list2)) * 200  # Percentage (normalized for set size)
-
-  # Cosine similarity using word embeddings (requires Gensim library)
-  try:
-    from gensim.models import Word2Vec
-    # Load pre-trained word embeddings (or train your own)
-    model = Word2Vec(sentences=[text1.split(), text2.split()], vector_size=100, min_count=1)
-    vec1 = model.wv[text1.split()[0]]  # Assuming first word for simplicity
-    vec2 = model.wv[text2.split()[0]]
-    cosine_similarity = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-  except ImportError:
-    cosine_similarity = "Gensim library not installed for word embedding similarity"
-
-  return {
-      "character_level_accuracy": character_accuracy,
-      "word_level_accuracy": word_accuracy,
-      "cosine_similarity": cosine_similarity
-  }
-
-
-def compare_text(text1, text2) -> list:
-          """
+def compare_text(text1, text2) -> dict:  # Corrected return type
+    """
     This function compares two texts using different methods.
 
-  Args:
-      text1: The first text string.
-      text2: The second text string.
+    Args:
+        text1: The first text string.
+        text2: The second text string.
 
-  Returns:
-      A dictionary containing the results of the following comparisons:
-          * "character_level_accuracy": Percentage of characters that match exactly.
-          * "word_level_accuracy": Percentage of words that match exactly (case-insensitive).
-          * "cosine_similarity": Cosine similarity between word embeddings (using Gensim).
-      """
-  # Character level accuracy
+    Returns:
+        A dictionary containing the results of the following comparisons:
+            * "character_level_accuracy": Percentage of characters that match exactly.
+            * "word_level_accuracy": Percentage of words that match exactly (case-insensitive).
+            * "cosine_similarity": Cosine similarity between word embeddings (using Gensim).
+    """
+
+    # Character level accuracy
     character_matches = sum(c1 == c2 for c1, c2 in zip(text1, text2))
     character_accuracy = character_matches / len(text1) * 100  # Percentage
 
-  # Word level accuracy (case-insensitive)
+    # Word level accuracy (case-insensitive)
     word_list1 = set(text1.lower().split())
     word_list2 = set(text2.lower().split())
     word_matches = len(word_list1.intersection(word_list2))
     word_accuracy = word_matches / (len(word_list1) + len(word_list2)) * 200  # Percentage (normalized for set size)
-  # Cosine similarity using word embeddings (requires Gensim library)
+
+    # Cosine similarity using word embeddings (requires Gensim library)
     try:
         from gensim.models import Word2Vec
-    # Load pre-trained word embeddings (or train your own)
+        # Load pre-trained word embeddings (or train your own)
         model = Word2Vec(sentences=[text1.split(), text2.split()], vector_size=100, min_count=1)
         vec1 = model.wv[text1.split()[0]]  # Assuming first word for simplicity
         vec2 = model.wv[text2.split()[0]]
         cosine_similarity = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
-        except ImportError:
+    except ImportError:
         cosine_similarity = "Gensim library not installed for word embedding similarity"
-    
-    # returns 768 dimensional array
-return {
-      "character_level_accuracy": character_accuracy,
-      "word_level_accuracy": word_accuracy,
-      "cosine_similarity": cosine_similarity}
+
+    # Return the results dictionary
+    return {
+        "character_level_accuracy": character_accuracy,
+        "word_level_accuracy": word_accuracy,
+        "cosine_similarity": cosine_similarity
+    }
