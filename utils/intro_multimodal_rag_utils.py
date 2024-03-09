@@ -1025,9 +1025,11 @@ def compare_text(text1, text2) -> dict:  # Corrected return type
         "cosine_similarity": cosine_similarity
     }
 
+
 def assess_context(context, question, nlp=None) -> dict:  # Corrected return type
     """
-    This function assesses whether the retrieved context likely contains the information needed to answer a question.
+    This function assesses whether the retrieved context likely contains 
+    the information needed to answer a question.
 
     Args:
         context: The retrieved text passage (string).
@@ -1037,10 +1039,11 @@ def assess_context(context, question, nlp=None) -> dict:  # Corrected return typ
     Returns:
         A dictionary containing:
             * "keyword_overlap": Ratio of keywords in the question found in the context.
-            * "named_entity_match" (Optional): Ratio of named entities in the question matching entities in the context (if nlp is provided).
-            * "lexical_density": Ratio of unique words to total words in the context (higher density suggests more informative content).
+            * "named_entity_match" (Optional): Ratio of named entities in the question 
+                                matching entities in the context (if nlp is provided).
+            * "lexical_density": Ratio of unique words to total words in the context 
+                               (higher density suggests more informative content).
     """
-    
 
   # Preprocess text (lowercase, tokenize)
     context_tokens = nltk.word_tokenize(context.lower())
