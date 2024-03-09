@@ -1024,10 +1024,54 @@ def compare_text(text1, text2) -> dict:  # Corrected return type
         "word_level_accuracy": word_accuracy,
         "cosine_similarity": cosine_similarity
     }
-def assess_context(context, question, nlp=None) -> dict:  # Corrected return type
+
+def compare_text_2(context, question, nlp=None) -> dict:  # Corrected return type
     """
-    This function assesses whether the retrieved context likely contains 
-    the information needed to answer a question.
+    This function compares two texts using different methods.
+
+    Args:
+        text1: The first text string.
+        text2: The second text string.
+
+    Returns:
+        A dictionary containing the results of the following comparisons:
+            * "character_level_accuracy": Percentage of characters that match exactly.
+            * "word_level_accuracy": Percentage of words that match exactly (case-insensitive).
+            * "cosine_similarity": Cosine similarity between word embeddings (using Gensim).
+    """
+
+    # Character level accuracy
+    character_matches = sum(c1 == c2 for c1, c2 in zip(text1, text2))
+    character_accuracy = character_matches / len(text1) * 100  # Percentage
+
+    # Word level accuracy (case-insensitive)
+    word_list1 = set(text1.lower().split())
+    word_list2 = set(text2.lower().split())
+    word_matches = len(word_list1.intersection(word_list2))
+    word_accuracy = word_matches / (len(word_list1) + len(word_list2)) * 200  # Percentage (normalized for set size)
+
+    # Cosine similarity using word embeddings (requires Gensim library)
+    try:
+        from gensim.models import Word2Vec
+        # Load pre-trained word embeddings (or train your own)
+        model = Word2Vec(sentences=[text1.split(), text2.split()], vector_size=100, min_count=1)
+        vec1 = model.wv[text1.split()[0]]  # Assuming first word for simplicity
+        vec2 = model.wv[text2.split()[0]]
+        cosine_similarity = np.dot(vec1, vec2) / (np.linalg.norm(vec1) * np.linalg.norm(vec2))
+    except ImportError:
+        cosine_similarity = "Gensim library not installed for word embedding similarity"
+
+    # Return the results dictionary
+    return {
+        "character_level_accuracy": character_accuracy,
+        "word_level_accuracy": word_accuracy,
+        "cosine_similarity": cosine_similarity
+    }
+
+
+def assess_context(context, question, nlp=None) -> dict:  # Corrected return type
+    ""
+    This function assesses whether the retrieved context likely contains the information needed to answer a question.
 
     Args:
         context: The retrieved text passage (string).
@@ -1037,39 +1081,14 @@ def assess_context(context, question, nlp=None) -> dict:  # Corrected return typ
     Returns:
         A dictionary containing:
             * "keyword_overlap": Ratio of keywords in the question found in the context.
-            * "named_entity_match" (Optional): Ratio of named entities in the question 
-                                matching entities in the context (if nlp is provided).
-            * "lexical_density": Ratio of unique words to total words in the context 
-                               (higher density suggests more informative content).
+            * "named_entity_match" (Optional): Ratio of named entities in the question matching entities in the context (if nlp is provided).
+            * "lexical_density": Ratio of unique words to total words in the context (higher density suggests more informative content).
     """
-
+    
   # Preprocess text (lowercase, tokenize)
     context_tokens = nltk.word_tokenize(context.lower())
     question_tokens = nltk.word_tokenize(question.lower())
 
-  # Remove stop words (optional)
-  # stopwords = nltk.corpus.stopwords.words('english')
-  # context_tokens = [word for word in context_tokens if word not in stopwords]
-  # question_tokens = [word for word in question_tokens if word not in stopwords]
-
-  # Calculate keyword overlap (ratio of question keywords found in context)
-    question_keywords = set(question_tokens)
-    keyword_overlap = len(question_keywords & set(context_tokens)) / len(question_keywords) if len(question_keywords) > 0 else 0
-
-  # Named entity match (if spaCy NLP is provided)
-    named_entity_match = None
-    if nlp is not None:
-        doc_context = nlp(context)
-        doc_question = nlp(question)
-        context_entities = [ent.text for ent in doc_context.ents]
-        question_entities = [ent.text for ent in doc_question.ents]
-        named_entity_match = len(set(context_entities) & set(question_entities)) / (len(set(context_entities)) + len(set(question_entities))  or 1)
-
-  # Lexical density (ratio of unique words to total words)
-    lexical_density = len(set(context_tokens)) / len(context_tokens) if len(context_tokens) > 0 else 0
-
     return {
-      "keyword_overlap": keyword_overlap,
-      "named_entity_match": named_entity_match,
-      "lexical_density": lexical_density
+      context_tokens
     }
